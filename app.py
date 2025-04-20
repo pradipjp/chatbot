@@ -36,17 +36,16 @@ if userinput:
         st.markdown(userinput)
 
     try:
-        # Prepare message as context (add all previous messages for context)
+        # Prepare context for the conversation
         context = "\n".join([f"{msg['role'].capitalize()}: {msg['message']}" for msg in st.session_state.chathistory])
         
-        # Call Cohere's chat API (adjust based on SDK version)
-        response = co.generate(
+        # Call Cohere's chat API
+        response = co.chat(
             model="command-nightly",
-            prompt=context + f"\nAssistant: {userinput}",
-            max_tokens=150
+            messages=[{"role": "user", "content": context + f"\nUser: {userinput}"}]
         )
         
-        botreply = response.generations[0].text.strip()
+        botreply = response["messages"][0]["content"].strip()
         st.session_state.chathistory.append({"role": "CHATBOT", "message": botreply})
         with st.chat_message("assistant"):
             st.markdown(botreply)
