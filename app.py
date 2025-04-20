@@ -36,10 +36,12 @@ if userinput:
         st.markdown(userinput)
 
     try:
+        # Prepare conversation history in the correct format
+        conversation_history = [(msg["role"], msg["message"]) for msg in st.session_state.chathistory]
+        
         # Call Cohere's chat API
         response = co.chat(
-            message=userinput,
-            chathistory=st.session_state.chathistory,
+            conversation_history=conversation_history,
             model="command-nightly"
         )
         botreply = response.text.strip()
@@ -49,7 +51,7 @@ if userinput:
     except Exception as e:
         st.error(f"Error: {e}")
 
-#Button to show full history
+# Button to show full history
 if st.button("📜 Show Full Conversation History"):
     with st.expander("Conversation Log"):
         for msg in st.session_state.chathistory:
