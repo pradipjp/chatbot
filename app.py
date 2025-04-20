@@ -36,17 +36,19 @@ if userinput:
         st.markdown(userinput)
 
     try:
-        # Prepare context for the conversation
-        context = "\n".join([f"{msg['role'].capitalize()}: {msg['message']}" for msg in st.session_state.chathistory])
+        # Prepare the conversation history for the API request
+        chat_history = [{"role": msg["role"], "content": msg["message"]} for msg in st.session_state.chathistory]
         
         # Call Cohere's chat API
         response = co.chat(
             model="command-nightly",
-            messages=[{"role": "user", "content": context + f"\nUser: {userinput}"}]
+            messages=chat_history
         )
         
-        botreply = response["messages"][0]["content"].strip()
+        # Get bot response and update chat history
+        botreply = response.text.strip()  # Ensure to get the message from the response
         st.session_state.chathistory.append({"role": "CHATBOT", "message": botreply})
+        
         with st.chat_message("assistant"):
             st.markdown(botreply)
     except Exception as e:
